@@ -62,11 +62,9 @@ if st.button("Generuj opis"):
         )
         # Wyświetlenie odpowiedzi modelu
         st.subheader("Wygenerowany opis produktu:")
-        st.write(response.choices[0].message.content)  # Użycie obiektu `message.content` zamiast indeksowania
+        st.write(response.choices[0].message.content)
 
-    except openai.error.AuthenticationError:
-        st.error("Błąd: Nieprawidłowy klucz API.")
-    except openai.error.OpenAIError as e:
-        st.error(f"Błąd API OpenAI: {e}")
+    except openai.OpenAIError as e:  # Zmiana obsługi wyjątków na OpenAIError
+        st.error(f"Błąd w API OpenAI: {e}")
     except Exception as e:
         st.error(f"Nieoczekiwany błąd: {e}")
