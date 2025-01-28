@@ -1,38 +1,15 @@
 import openai
 import os
+import streamlit as st
 
-# Pobieranie klucza API z zmiennej środowiskowej
+# Pobranie klucza API z Secrets Streamlit
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def generate_product_description(product_details):
-    prompt = f"""
-    Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
-    
-    Szczegóły produktu:
-    {product_details}
-    
-    Uwzględnij:
-    - Zalety produktu i specyfikacje techniczne.
-    - Grupę docelową (np. dla biznesu, pracy biurowej, nauki).
-    - Optymalizację pod kątem SEO, używając słów kluczowych jak: "laptop poleasingowy", "Fujitsu Lifebook U747", "laptop biznesowy".
-    - Zwięzłe akapity i czytelność.
-    """
+st.title("Generator opisów produktowych z GPT")
+st.write("Wprowadź dane produktu, aby wygenerować opis SEO.")
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",  # Jeśli używasz GPT-3.5, zmień na "gpt-3.5-turbo"
-            messages=[
-                {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=500
-        )
-        return response["choices"][0]["message"]["content"]
-    except Exception as e:
-        return f"Error: {e}"
-
-# Dane produktu
-product_details = """
+# Dane wejściowe od użytkownika
+product_details = st.text_area("Dane produktu (wklej poniżej)", """
 Kondycja: "A" poleasingowy, przetestowany
 Producent: Fujitsu
 Model: Lifebook U747
@@ -64,9 +41,25 @@ Komunikacja: WiFi
 Bateria: Oryginalna, czas pracy od 1h do 2,5h (używana)
 Klawiatura: QWERTY PL
 W zestawie: Zasilacz z przewodem
-"""
+""")
 
-# Generowanie opisu
-description = generate_product_description(product_details)
-print("Wygenerowany opis produktu:")
-print(description)
+if st.button("Generuj opis"):
+    prompt = f"""
+    Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
+    {product_details}
+    """
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # Możesz użyć także "gpt-3.5-turbo"
+            messages=[
+                {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        st.subheader("Wygenerowany opis produktu:")
+        st.write(response["choices"][0]["message"]["content"])
+    except Exception as e:
+        st.error(f"Coś poszło nie tak: {e}")
