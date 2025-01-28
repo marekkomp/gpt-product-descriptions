@@ -50,8 +50,9 @@ if st.button("Generuj opis"):
     """
 
     try:
+        # Nowa funkcja w nowym API
         response = openai.ChatCompletion.create(
-            model="gpt-4",  # Możesz użyć także "gpt-3.5-turbo"
+            model="gpt-4",  # Jeśli używasz GPT-3.5, zmień na "gpt-3.5-turbo"
             messages=[
                 {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
                 {"role": "user", "content": prompt}
