@@ -50,8 +50,9 @@ if st.button("Generuj opis"):
     """
 
     try:
+        # Zmiana struktury zgodnie z nowym API OpenAI
         response = openai.ChatCompletion.create(
-            model="gpt-4",  # Jeśli używasz GPT-3.5, zmień na "gpt-3.5-turbo"
+            model="gpt-4",  # Możesz zmienić na "gpt-3.5-turbo" dla tańszej opcji
             messages=[
                 {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
                 {"role": "user", "content": prompt}
@@ -59,7 +60,13 @@ if st.button("Generuj opis"):
             max_tokens=500,
             temperature=0.7
         )
+        # Wyświetlenie odpowiedzi modelu
         st.subheader("Wygenerowany opis produktu:")
-        st.write(response["choices"][0]["message"]["content"])
+        st.write(response.choices[0].message.content)  # Użycie obiektu `message.content` zamiast indeksowania
+
+    except openai.error.AuthenticationError:
+        st.error("Błąd: Nieprawidłowy klucz API.")
+    except openai.error.OpenAIError as e:
+        st.error(f"Błąd API OpenAI: {e}")
     except Exception as e:
-        st.error(f"Coś poszło nie tak: {e}")
+        st.error(f"Nieoczekiwany błąd: {e}")
