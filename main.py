@@ -59,7 +59,7 @@ if st.button("Generuj opis"):
         try:
             # Wysłanie zapytania do modelu GPT
             response = openai.ChatCompletion.create(
-                model="gpt-4",  # Zmień na "gpt-3.5-turbo", jeśli nie masz dostępu do GPT-4
+                model="gpt-3.5-turbo",  # Możesz zmienić na "gpt-4", jeśli masz dostęp
                 messages=[
                     {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
                     {"role": "user", "content": prompt}
@@ -72,7 +72,11 @@ if st.button("Generuj opis"):
             st.subheader("Wygenerowany opis produktu:")
             st.write(response.choices[0].message.content)
 
-        except openai.OpenAIError as e:  # Obsługa błędów
+        except openai.error.InvalidRequestError as e:
             st.error(f"Błąd w API OpenAI: {e}")
+        except openai.error.AuthenticationError:
+            st.error("Błąd autoryzacji: Sprawdź swój klucz API.")
+        except openai.error.OpenAIError as e:
+            st.error(f"Nieoczekiwany błąd OpenAI: {e}")
         except Exception as e:
-            st.error(f"Nieoczekiwany błąd: {e}")
+            st.error(f"Nieoczekiwany błąd aplikacji: {e}")
