@@ -4,7 +4,6 @@ import os
 # Pobieranie klucza API z zmiennej środowiskowej
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Funkcja do generowania opisu produktu
 def generate_product_description(product_details):
     prompt = f"""
     Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
@@ -19,15 +18,18 @@ def generate_product_description(product_details):
     - Zwięzłe akapity i czytelność.
     """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500
-    )
-    return response["choices"][0]["message"]["content"]
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # Jeśli używasz GPT-3.5, zmień na "gpt-3.5-turbo"
+            messages=[
+                {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500
+        )
+        return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"Error: {e}"
 
 # Dane produktu
 product_details = """
