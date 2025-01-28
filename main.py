@@ -52,4 +52,27 @@ if st.button("Generuj opis"):
         st.error("Wprowadź dane produktu, aby wygenerować opis!")
     else:
         prompt = f"""
-        Stwórz rozbudowany, atrakcyjny opis 
+        Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
+        {product_details}
+        """
+
+        try:
+            # Wysłanie zapytania do modelu GPT
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # Zmień na "gpt-3.5-turbo", jeśli nie masz dostępu do GPT-4
+                messages=[
+                    {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+
+            # Wyświetlenie odpowiedzi modelu
+            st.subheader("Wygenerowany opis produktu:")
+            st.write(response.choices[0].message.content)
+
+        except openai.OpenAIError as e:  # Obsługa błędów
+            st.error(f"Błąd w API OpenAI: {e}")
+        except Exception as e:
+            st.error(f"Nieoczekiwany błąd: {e}")
