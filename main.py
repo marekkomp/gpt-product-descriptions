@@ -2,7 +2,7 @@ import openai
 import os
 import streamlit as st
 
-# Pobranie klucza API z Secrets Streamlit
+# Pobieranie klucza API z Secrets Streamlit
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 st.title("Generator opisów produktowych z GPT")
@@ -50,7 +50,6 @@ if st.button("Generuj opis"):
     """
 
     try:
-        # Nowa funkcja w nowym API
         response = openai.ChatCompletion.create(
             model="gpt-4",  # Jeśli używasz GPT-3.5, zmień na "gpt-3.5-turbo"
             messages=[
