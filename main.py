@@ -2,9 +2,13 @@ import openai
 import os
 import streamlit as st
 
-# Pobieranie klucza API z Secrets Streamlit
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Ustawienie klucza API z Streamlit Secrets
+if "OPENAI_API_KEY" in os.environ:
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+else:
+    st.error("Klucz API nie został ustawiony! Dodaj OPENAI_API_KEY do Streamlit Secrets.")
 
+# Tytuł aplikacji
 st.title("Generator opisów produktowych z GPT")
 st.write("Wprowadź dane produktu, aby wygenerować opis SEO.")
 
@@ -44,27 +48,33 @@ W zestawie: Zasilacz z przewodem
 """)
 
 if st.button("Generuj opis"):
-    prompt = f"""
-    Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
-    {product_details}
-    """
+    if not product_details.strip():
+        st.error("Wprowadź dane produktu, aby wygenerować opis!")
+    else:
+        prompt = f"""
+        Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
+        {product_details}
+        """
 
-    try:
-        # Zmiana struktury zgodnie z nowym API OpenAI
-        response = openai.ChatCompletion.create(
-            model="gpt-4",  # Możesz zmienić na "gpt-3.5-turbo" dla tańszej opcji
-            messages=[
-                {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=500,
-            temperature=0.7
-        )
-        # Wyświetlenie odpowiedzi modelu
-        st.subheader("Wygenerowany opis produktu:")
-        st.write(response.choices[0].message.content)
+        try:
+            # Wysłanie zapytania do modelu GPT
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # Zmień na "gpt-3.5-turbo", jeśli nie masz dostępu do GPT-4
+                messages=[
+                    {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
 
-    except openai.OpenAIError as e:  # Zmiana obsługi wyjątków na OpenAIError
-        st.error(f"Błąd w API OpenAI: {e}")
-    except Exception as e:
-        st.error(f"Nieoczekiwany błąd: {e}")
+            # Wyświetlenie odpowiedzi modelu
+            st.subheader("Wygenerowany opis produktu:")
+            st.write(response.choices[0].message.content)
+
+        except openai.error.AuthenticationError:
+            st.error("Błąd autoryzacji: Sprawdź swój klucz API.")
+        except openai.error.OpenAIError as e:
+            st.error(f"Błąd w API OpenAI: {e}")
+        except Exception as e:
+            st.error(f"Nieoczekiwany błąd: {e}")
