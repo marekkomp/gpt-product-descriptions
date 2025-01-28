@@ -1,14 +1,36 @@
 import openai
 import os
-import streamlit as st
 
-# Klucz API
+# Pobieranie klucza API z zmiennej środowiskowej
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-st.title("Generator opisów produktowych z GPT")
-st.write("Wprowadź dane produktu, aby wygenerować opis SEO.")
+# Funkcja do generowania opisu produktu
+def generate_product_description(product_details):
+    prompt = f"""
+    Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
+    
+    Szczegóły produktu:
+    {product_details}
+    
+    Uwzględnij:
+    - Zalety produktu i specyfikacje techniczne.
+    - Grupę docelową (np. dla biznesu, pracy biurowej, nauki).
+    - Optymalizację pod kątem SEO, używając słów kluczowych jak: "laptop poleasingowy", "Fujitsu Lifebook U747", "laptop biznesowy".
+    - Zwięzłe akapity i czytelność.
+    """
 
-product_details = st.text_area("Dane produktu (wklej poniżej)", """
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=500
+    )
+    return response["choices"][0]["message"]["content"]
+
+# Dane produktu
+product_details = """
 Kondycja: "A" poleasingowy, przetestowany
 Producent: Fujitsu
 Model: Lifebook U747
@@ -40,21 +62,9 @@ Komunikacja: WiFi
 Bateria: Oryginalna, czas pracy od 1h do 2,5h (używana)
 Klawiatura: QWERTY PL
 W zestawie: Zasilacz z przewodem
-""")
+"""
 
-if st.button("Generuj opis"):
-    prompt = f"""
-    Stwórz rozbudowany, atrakcyjny opis produktowy z uwzględnieniem zasad SEO na podstawie poniższych danych:
-    
-    {product_details}
-    """
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a professional e-commerce content writer specializing in SEO."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500
-    )
-    st.subheader("Wygenerowany opis produktu:")
-    st.write(response["choices"][0]["message"]["content"])
+# Generowanie opisu
+description = generate_product_description(product_details)
+print("Wygenerowany opis produktu:")
+print(description)
